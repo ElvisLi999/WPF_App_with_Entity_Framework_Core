@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:Lab4"
         mc:Ignorable="d"
         Title="Customer Information System" Height="900" Width="1024" FontFamily="Times New Roman" FontSize="10" >
+
     <Grid ShowGridLines="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="417*"/>
@@ -23,13 +24,22 @@
         <Label Content="{Binding ElementName=Win,Path=Title}" Margin="373,9,301,226" FontFamily="Copperplate Gothic Bold" 
                FontWeight="DemiBold" FontSize="15" Grid.ColumnSpan="2"/>
 
-        <!-- Basic Information Input -->
+        <!-- Customer Information Input -->
         <Label Content="Basic Information Input" Margin="20,56,314,195" FontFamily="Copperplate Gothic Bold" 
                FontWeight="DemiBold" FontSize="10"/>
         <Border BorderBrush="Black" BorderThickness="1" Margin="10,83,106,10"/>
-        <Button Content="Save" HorizontalAlignment="Left" Margin="347,98,0,164" Click="Button_Click" Width="50" FontFamily="Copperplate Gothic Bold" 
+        <!-- Buttons for Customer Block -->
+        <Button x:Name="btnSaveCustomers" Content="Save" HorizontalAlignment="Left" Margin="440,88,0,175" Click="btnSaveCustomers_Click" Width="66" FontFamily="Copperplate Gothic Bold" 
                FontWeight="DemiBold" FontSize="10"/>
-
+        <Button x:Name="btnDeleteCustomers" Content="Delete" HorizontalAlignment="Left" Margin="440,187,0,77" Click="btnDeleteCustomers_Click" Width="66" FontFamily="Copperplate Gothic Bold" 
+               FontWeight="DemiBold" FontSize="10"/>
+        <Button x:Name="btnSaveAddresses" Content="Save" HorizontalAlignment="Left" Margin="349,95,0,167" Click="btnSaveAddresses_Click" Width="50" Grid.Column="1" FontFamily="Copperplate Gothic Bold" 
+               FontWeight="DemiBold" FontSize="10"/>
+        <Button x:Name="btnLoadCustomers" Content="Load Data" HorizontalAlignment="Left" Margin="440,121,0,141" Click="btnLoadCustomers_Click" Width="66" FontFamily="Copperplate Gothic Bold" 
+               FontWeight="DemiBold" FontSize="10"/>
+        <Button x:Name="btnUpdateCustomers" Content="Update" HorizontalAlignment="Left" Margin="440,154,0,108" Click="BtnUpdateCustomers_Click" Width="66" FontFamily="Copperplate Gothic Bold" 
+               FontWeight="DemiBold" FontSize="10"/>
+        <!-- Elements for Customer Input Block -->
         <Label Content="Name Style:" Margin="20,104,455,148" FontSize="7"/>
         <TextBox x:Name="txtNameStyle" HorizontalAlignment="Left" Margin="84,104,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="52" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447"/>
         <Label Content="Title:" Margin="149,103,353,148" FontSize="7"/>
@@ -38,7 +48,6 @@
         <TextBox x:Name="txtFirstName" HorizontalAlignment="Left" Margin="332,143,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" Height="25" FontSize="8" RenderTransformOrigin="0.501,0.447"/>
         <Label Content="Mid Name:" Margin="147,145,337,108" FontSize="7"/>
         <TextBox x:Name="txtMiddleName" HorizontalAlignment="Left" Margin="210,145,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" Height="25" FontSize="8" RenderTransformOrigin="0.501,0.447"/>
-
         <Label Content="Last Name:" Margin="20,145,455,108" FontSize="7"/>
         <TextBox x:Name="txtLastName" HorizontalAlignment="Left" Margin="84,144,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="52" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447"/>
         <Label Content="Company:" Margin="151,190,335,61" FontSize="7"/>
@@ -47,26 +56,26 @@
         <TextBox x:Name="txtSalesPerson" HorizontalAlignment="Left" Margin="87,192,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" Height="25" FontSize="8" RenderTransformOrigin="0.501,0.447"/>
         <Label Content="Email:" Margin="272,231,219,23" FontSize="7"/>
         <TextBox x:Name="txtEmail" HorizontalAlignment="Left" Margin="331,230,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="52" Height="25" FontSize="8" RenderTransformOrigin="0.501,0.447"/>
-
         <Label Content="Phone:" Margin="20,234,456,20" FontSize="7"/>
         <TextBox x:Name="txtPhone" HorizontalAlignment="Left" Margin="87,233,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" Height="25" FontSize="8" RenderTransformOrigin="0.501,0.447"/>
         <Label Content="Password:" Margin="147,230,335,20" FontSize="7"/>
         <TextBox x:Name="txtPassword" HorizontalAlignment="Left" Margin="210,230,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" Height="25" FontSize="8" RenderTransformOrigin="0.501,0.447"/>
-
+        <!-- Data Grid for Customer Information Display Block -->
+        <DataGrid x:Name="gridCustomers" HorizontalAlignment="Left" Margin="10,28,0,0" Grid.Row="1" Grid.ColumnSpan="2" FontFamily="Comic Sans MS" FontWeight="Light" FontSize="10" Height="136" VerticalAlignment="Top" Width="952" SelectionChanged="gridCustomers_SelectionChanged" Grid.RowSpan="2"/>
 
         <!-- Address Information Input -->
         <Label Content="Address Information Input" Margin="27,56,263,195" Grid.Column="1" FontFamily="Copperplate Gothic Bold" 
                FontWeight="DemiBold" FontSize="10"/>
         <Border BorderBrush="Black" BorderThickness="1" Margin="10,83,62,12" Grid.Column="1"/>
-        <Button Content="Save" HorizontalAlignment="Left" Margin="349,95,0,167" Click="Button_Click1" Width="50" Grid.Column="1" FontFamily="Copperplate Gothic Bold" 
-               FontWeight="DemiBold" FontSize="10"/>
+
 
         <Label Content="Customer Id:" Margin="18,103,414,149" FontSize="7" Grid.Column="1"/>
-        <TextBox x:Name="txtCustomerId" HorizontalAlignment="Left" Margin="81,103,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="52" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
+        <ComboBox Margin="81,103,0,149" Width="52" x:Name="cmbxCustomerId" HorizontalAlignment="Left" ComboBox.ItemContainerStyle="{StaticResource ComboboxItemStyle}" DisplayMemberPath="CustomerId" PreviewMouseLeftButtonDown="ComboBoxCustomerId_Click" DropDownClosed="ComboBoxCustomerId_DropDownClosed" Grid.Column="1"/>
         <Label Content="AddressType:" Margin="18,139,414,112" FontSize="7" Grid.Column="1"/>
-        <TextBox x:Name="txtAddressType" HorizontalAlignment="Left" Margin="81,139,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="52" Height="27" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
+        <ComboBox Margin="81,138,0,114" Width="52" x:Name="cmbxAddressType" HorizontalAlignment="Left" ComboBox.ItemContainerStyle="{StaticResource ComboboxItemStyle}" PreviewMouseLeftButtonDown="ComboBoxAddressType_Click" DropDownClosed="ComboBoxAddressType_DropDownClosed" Grid.Column="1"/>
+
         <Label Content="Modified Date:" Margin="268,139,160,113" FontSize="7" Grid.Column="1"/>
-        <TextBox x:Name="txtModifiedDate" HorizontalAlignment="Left" Margin="348,132,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
+        <TextBox x:Name="txtModifiedDate" HorizontalAlignment="Left" Margin="348,139,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
         <Label Content="Address Line 1:" Margin="18,217,408,36" FontSize="7" Grid.Column="1"/>
         <TextBox x:Name="txtAddressLine1" HorizontalAlignment="Left" Margin="96,216,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="123" Height="25" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
 
@@ -86,7 +95,7 @@
 
 
         <DataGrid x:Name="custGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" FontFamily="Comic Sans MS" FontWeight="Light" FontSize="7" 
-                  Margin="10,24,10,561" RowDetailsVisibilityMode="VisibleWhenSelected" Grid.ColumnSpan="2" Grid.Row="2">
+                  Margin="0,466,91,23" RowDetailsVisibilityMode="VisibleWhenSelected" Grid.ColumnSpan="2" Grid.Row="2">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding CustomerID}" Header="Customer ID" Width="SizeToHeader" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding NameStyle}" Header="Name Style" Width="SizeToHeader"/>
@@ -112,21 +121,13 @@
         </DataGrid>
 
 
-        <DataGrid x:Name="gridCustomers" HorizontalAlignment="Left" 
-                  Margin="10,100,0,0" Grid.Row="2" d:ItemsSource="{d:SampleData ItemCount=5}"
-                  FontFamily="Comic Sans MS" FontWeight="Light" FontSize="10" Height="125" VerticalAlignment="Top"/>
+
         <DataGrid x:Name="gridAddresses" HorizontalAlignment="Left" 
-                  Margin="10,177,0,292" Grid.Row="2" d:ItemsSource="{d:SampleData ItemCount=5}"
-                  FontFamily="Comic Sans MS" FontWeight="Light" FontSize="10" Grid.Column="1"/>
+                  Margin="61,230,0,239" Grid.Row="2" d:ItemsSource="{d:SampleData ItemCount=5}"
+                  FontFamily="Comic Sans MS" FontWeight="Light" FontSize="8" Grid.Column="1" Width="312"/>
         <DataGrid x:Name="gridCustomersAddresses" HorizontalAlignment="Left" 
                   Margin="10,230,0,221" Grid.Row="2" d:ItemsSource="{d:SampleData ItemCount=5}"
                   FontFamily="Comic Sans MS" FontWeight="Light" FontSize="10" Width="363"/>
-
-
-
-
-
-
 
     </Grid>
 </Window>

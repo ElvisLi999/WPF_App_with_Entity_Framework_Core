@@ -26,63 +26,14 @@ namespace Lab4
         public MainWindow()
         {
             InitializeComponent();
+            ReloadingCustomers();
 
-            var custs = from c in db.Customers
-                        select new
-                        {
-                            CustomerId = c.CustomerID,
-                            NameStyle = c.NameStyle,
-                            Title = c.Title,
-                            FirstName = c.FirstName,
-                            MiddleName = c.MiddleName,
-                            LastName = c.LastName,
-                            CompanyName = c.CompanyName,
-                            SalesPerson = c.SalesPerson,
-                            EmailAddress = c.EmailAddress,
-                            Phone = c.Phone,
-                            Password = c.Password
-                        };
-            var addrs = from a in db.Addresses
-                        select new
-                        {
-                            AddressId = a.AddressId,
-                            AddressLine1 = a.AddressLine1,
-                            AddressLine2 = a.AddressLine2,
-                            City = a.City,
-                            Province = a.StateProvince,
-                            Country = a.CountryRegion,
-                            PostalCode = a.PostalCode
-                        };
-            var custAddrs = from ca in db.CustomerAddresses
-                        select new
-                        {
-                            ca.AddressType,ca.ModifiedDate,ca.CustomerID,ca.AddressID
-                        };
-
-            var custInfors = (from c in db.Customers
-                              from a in db.Addresses
-                              from ca in db.CustomerAddresses
-                              where c.CustomerID.Equals(ca.CustomerID) && a.AddressId.Equals(ca.AddressID)
-                              select new
-                              {
-                                c.CustomerID,c.NameStyle,c.Title,c.FirstName,c.MiddleName,c.LastName,c.CompanyName,c.SalesPerson,c.EmailAddress,c.Phone,c.Password,
-                                ca.AddressType,ca.ModifiedDate,
-                                a.AddressId,a.AddressLine1,a.AddressLine2,a.City,a.StateProvince,a.CountryRegion,a.PostalCode
-                              }).Distinct();
-
-            // Assign items source for gridCustomers
-            this.custGrid.ItemsSource = custInfors.ToList();
-            this.gridCustomers.ItemsSource = custs.ToList();
-            this.gridAddresses.ItemsSource = addrs.ToList();
-            this.gridCustomersAddresses.ItemsSource = custAddrs.ToList();
 
         }
 
         // Saving Customer input
         private void btnSaveCustomers_Click(object sender, RoutedEventArgs e)
         {
-/*            // Create a object of CustomerEntities
-            CustomerEntities db = new CustomerEntities();*/
             Customer custObject = new Customer()
             {
                 NameStyle = txtNameStyle.Text,
@@ -101,11 +52,6 @@ namespace Lab4
             ReloadingCustomers(); // Reloading customers from database
         }
 
-        private void btnSaveAddresses_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void btnLoadCustomers_Click(object sender, RoutedEventArgs e)
         {
             ReloadingCustomers();
@@ -116,7 +62,7 @@ namespace Lab4
         private void gridCustomers_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Cut selectedColumn to list
-            string[] delimiterStrings = {", ", "{ "," }", " = "};
+            string[] delimiterStrings = { ", ", "{ ", " }", " = " };
             if (this.gridCustomers.SelectedItem != null)
             {
                 string i = this.gridCustomers.SelectedItem.ToString();
@@ -138,13 +84,11 @@ namespace Lab4
                     this.txtPassword.Text = list[22].ToString();
                 }
             }
-            
+
         }
 
         private void BtnUpdateCustomers_Click(object sender, RoutedEventArgs e)
         {
-/*            // Create a object of CustomerEntities
-            CustomerEntities db = new CustomerEntities();*/
             var custs = from c in db.Customers
                         where c.CustomerID == this.updatingCustomerId
                         select c;
@@ -205,57 +149,257 @@ namespace Lab4
                             CustomerId = c.CustomerID,
                         };
 
-            cmbxCustomerId.ItemsSource =custs.ToList();
+            cmbxCustomerId.ItemsSource = custs.ToList();
 
         }
         // Selecting a value for CustomerId comboBox
         private void ComboBoxCustomerId_DropDownClosed(object sender, EventArgs e)
         {
-
+            if (cmbxCustomerId.SelectedItem != null)
+            {
+                insertCustId = FormatId(this.cmbxCustomerId.SelectedItem.ToString());
+                cmbxAddressType.SelectedItem = null;
+                ClearAddressTextBox();
+            }
+            
         }
         // Clicking the AddressType comboBox
+        private string selectAddrType = null;
+        private string[] addrsTypes = { "Home", "Work" };
         private void ComboBoxAddressType_Click(object sender, MouseButtonEventArgs e)
         {
-            string[] addrsTypes = {"Home","Work"};
 
-            if(cmbxCustomerId.SelectedItem == null)
+            if (cmbxCustomerId.SelectedItem == null)
             {
+                ClearAddressTextBox();
                 MessageBox.Show("Plz select a customer id first!");
             }
             else
             {
-                CheckingCustomerExistAddresses();
-                if(existAddress != null)
-                {
-                    cmbxAddressType.ItemsSource = addrsTypes;
-
-                }
-                else
-                {
-                    cmbxAddressType.ItemsSource = addrsTypes;
-
-                }
-
+                ClearAddressTextBox();
+                cmbxAddressType.ItemsSource = addrsTypes;
             }
 
         }
         // Selecting a value for AddressType comboBox
         private void ComboBoxAddressType_DropDownClosed(object sender, EventArgs e)
         {
-            if(existAddress != null)
+            selectAddrType = cmbxAddressType.SelectedItem.ToString();
+            CheckingCustomerExistAddresses();
+            if (existAddress != null && cmbxAddressType.SelectedItem !=null)
             {
                 if (existAddress[0].AddressType.ToString() == cmbxAddressType.SelectedItem.ToString())
                 {
-                    MessageBox.Show($"Two are equal: " + existAddress[0].AddressType.ToString() + " and " + cmbxAddressType.SelectedItem.ToString());
+                    ClearAddressTextBox();
+                    LoadingAddressInformation(selectedCustomerId, cmbxAddressType.SelectedItem.ToString());
                 }
                 else
                 {
-                    MessageBox.Show($"Two are not equal: " + existAddress[0].AddressType.ToString() + " and " + cmbxAddressType.SelectedItem.ToString());
+                    ClearAddressTextBox();
                 }
             }
 
         }
 
+        // Saving new insert for address block
+        private void btnSaveAddress_Click(object sender, RoutedEventArgs e)
+        {
+            if (cmbxCustomerId.SelectedItem != null)
+            {
+                if (cmbxAddressType.SelectedItem != null)
+                {
+                    if (existAddress == null || existAddress[0].AddressType.ToString() != cmbxAddressType.SelectedItem.ToString())
+                    {
+                        InsertAddress();
+                        MessageBox.Show($"Customer Id: " + this.selectedCustomerId + " and Address Type: " + this.selectAddrType + " added into Database!");
+                        this.cmbxCustomerId.SelectedItem = null;
+                        this.cmbxAddressType.SelectedItem = null;
+                        ClearAddressTextBox();
+                    }
+                    else
+                    {
+                        UpdateAddress();
+                        MessageBox.Show($"Customer Id: " + this.selectedCustomerId + " and Address Type: " + this.selectAddrType + " are updated!");
+                        this.cmbxCustomerId.SelectedItem = null;
+                        this.cmbxAddressType.SelectedItem = null;
+                        ClearAddressTextBox();
+                    }
+                }
+
+
+            }
+            else
+            {
+
+                MessageBox.Show("Plz select a customerId first!");
+            }
+        }
+
+
+        // Check the Customers' exist Address information
+        List<CustomerAddress> existAddress = null;
+        int selectedCustomerId = 0;
+        private void CheckingCustomerExistAddresses()
+        {
+            // Cut selectedColumn to list
+            string[] delimiterStrings = { ", ", "{ ", " }", " = " };
+
+            if (this.cmbxCustomerId.SelectedItem != null)
+            {
+                string i = this.cmbxCustomerId.SelectedItem.ToString();
+                List<string> list = new List<string>(i.Split(delimiterStrings, System.StringSplitOptions.None));
+
+                // Fill selected column into variable
+                this.selectedCustomerId = int.Parse(list[2].ToString());
+
+                var addrs = from ca in db.CustomerAddresses
+                            where ca.CustomerID == this.selectedCustomerId && ca.AddressType == this.selectAddrType
+                            select ca;
+                if (addrs.FirstOrDefault() == null)
+                {
+                    existAddress = null;
+                }
+                else
+                {
+                    existAddress = addrs.ToList();
+                    updateAddrId = int.Parse(addrs.FirstOrDefault().AddressID.ToString());
+                    updateCustId = int.Parse(addrs.FirstOrDefault().CustomerID.ToString());
+                }
+            }
+
+        }
+
+        // Loading the Customers' existing Address information depends on CustomerId and AddressType
+        private void LoadingAddressInformation(int custId, string addrType)
+        {
+
+            var AddressInfors = (
+                              from a in db.Addresses
+                              from ca in db.CustomerAddresses
+                              where custId == ca.CustomerID && ca.AddressType.Equals(addrType) && a.AddressId == ca.AddressID
+                              select new
+                              {
+                                  ca.AddressType,
+                                  ca.ModifiedDate,
+                                  a.AddressId,
+                                  a.AddressLine1,
+                                  a.AddressLine2,
+                                  a.City,
+                                  a.StateProvince,
+                                  a.CountryRegion,
+                                  a.PostalCode
+                              }).Distinct();
+
+            // Assign items for txtboxes of address block
+            this.txtModifiedDate.Text = AddressInfors.FirstOrDefault().ModifiedDate.ToString();
+            this.txtAddressLine1.Text = AddressInfors.FirstOrDefault().AddressLine1.ToString();
+            this.txtAddressLine2.Text = AddressInfors.FirstOrDefault().AddressLine2.ToString();
+            this.txtCity.Text = AddressInfors.FirstOrDefault().City.ToString();
+            this.txtState.Text = AddressInfors.FirstOrDefault().StateProvince.ToString();
+            this.txtCountry.Text = AddressInfors.FirstOrDefault().CountryRegion.ToString();
+            this.txtPostalCode.Text = AddressInfors.FirstOrDefault().PostalCode.ToString();
+        }
+
+        private void btnClearAddress_Click(object sender, RoutedEventArgs e)
+        {
+            this.cmbxCustomerId.SelectedItem = null;
+            this.cmbxAddressType.SelectedItem = null;
+            ClearAddressTextBox();
+        }
+
+        // Clear textBoxes of Address Block
+        private void ClearAddressTextBox()
+        {
+            this.txtModifiedDate.Clear();
+            this.txtAddressLine1.Clear();
+            this.txtAddressLine2.Clear();
+            this.txtCity.Clear();
+            this.txtState.Clear();
+            this.txtCountry.Clear();
+            this.txtPostalCode.Clear();
+        }
+
+        // Insert new data to address tables
+        private int insertAddrId = 0, insertCustId = 0;
+        private void InsertAddress()
+        {
+            // InsertAddress
+            Address addrObject = new Address()
+            {
+                AddressLine1 = txtAddressLine1.Text,
+                AddressLine2 = txtAddressLine2.Text,
+                City = txtCity.Text,
+                StateProvince = txtState.Text,
+                CountryRegion = txtCountry.Text,
+                PostalCode = txtPostalCode.Text
+            };
+            db.Addresses.Add(addrObject); // Save in Memory Level
+            db.SaveChanges(); // Save in Database Level;
+
+            insertAddrId = addrObject.AddressId;
+            insertCustId = FormatId(this.cmbxCustomerId.SelectedItem.ToString());
+
+            // Insert CustomerAddress
+            CustomerAddress caObject = new CustomerAddress()
+            {
+                AddressType = cmbxAddressType.SelectedItem.ToString(),
+                ModifiedDate = DateTime.Now,
+                CustomerID = insertCustId,
+                AddressID = insertAddrId
+            };
+            db.CustomerAddresses.Add(caObject); // Save in Memory Level
+            db.SaveChanges(); // Save in Database Level;
+
+            ReloadingCustomers();
+
+        }
+
+        // Update data to address tables
+        private int updateAddrId = 0, updateCustId = 0;
+        private void UpdateAddress()
+        {
+            // Update Address
+            var addr = from a in db.Addresses
+                       where a.AddressId == updateAddrId
+                       select a;
+            Address addrObject = addr.SingleOrDefault();
+            if (addrObject != null)
+            {
+                addrObject.AddressLine1 = this.txtAddressLine1.Text;
+                addrObject.AddressLine2 = this.txtAddressLine2.Text;
+                addrObject.City = this.txtCity.Text;
+                addrObject.StateProvince = this.txtState.Text;
+                addrObject.CountryRegion = this.txtCountry.Text;
+                addrObject.PostalCode = this.txtPostalCode.Text;
+                db.SaveChanges();
+            }
+            // Update CustomerAddress
+
+            var custaddrs = from ca in db.CustomerAddresses
+                            where ca.CustomerID == updateCustId && ca.AddressID == updateAddrId
+                            select ca;
+            CustomerAddress caObject = custaddrs.SingleOrDefault();
+            if (addrObject != null)
+            {
+                caObject.AddressType = this.cmbxAddressType.SelectedItem.ToString();
+                caObject.ModifiedDate = DateTime.Now;
+                db.SaveChanges();
+            }
+
+            ReloadingCustomers();
+        }
+
+        // Format id
+        private int FormatId(string stringId)
+        {
+            // Cut selectedColumn to list
+            string[] delimiterStrings = { ", ", "{ ", " }", " = " };
+
+            List<string> list = new List<string>(stringId.Split(delimiterStrings, System.StringSplitOptions.None));
+
+            // Fill selected column into variable
+            return int.Parse(list[2].ToString());
+        }
 
         // Reloading Customers Method
         private void ReloadingCustomers()
@@ -275,40 +419,60 @@ namespace Lab4
                             Phone = c.Phone,
                             Password = c.Password
                         };
+            var addrs = from a in db.Addresses
+                        select new
+                        {
+                            AddressId = a.AddressId,
+                            AddressLine1 = a.AddressLine1,
+                            AddressLine2 = a.AddressLine2,
+                            City = a.City,
+                            Province = a.StateProvince,
+                            Country = a.CountryRegion,
+                            PostalCode = a.PostalCode
+                        };
+            var custAddrs = from ca in db.CustomerAddresses
+                            select new
+                            {
+                                ca.AddressType,
+                                ca.ModifiedDate,
+                                ca.CustomerID,
+                                ca.AddressID
+                            };
+
+            var custInfors = (from c in db.Customers
+                              from a in db.Addresses
+                              from ca in db.CustomerAddresses
+                              where c.CustomerID.Equals(ca.CustomerID) && a.AddressId.Equals(ca.AddressID)
+                              select new
+                              {
+                                  c.CustomerID,
+                                  c.NameStyle,
+                                  c.Title,
+                                  c.FirstName,
+                                  c.MiddleName,
+                                  c.LastName,
+                                  c.CompanyName,
+                                  c.SalesPerson,
+                                  c.EmailAddress,
+                                  c.Phone,
+                                  c.Password,
+                                  ca.AddressType,
+                                  ca.ModifiedDate,
+                                  a.AddressId,
+                                  a.AddressLine1,
+                                  a.AddressLine2,
+                                  a.City,
+                                  a.StateProvince,
+                                  a.CountryRegion,
+                                  a.PostalCode
+                              }).Distinct();
+
+            // Assign items source for gridCustomers
+            this.custGrid.ItemsSource = custInfors.ToList();
             this.gridCustomers.ItemsSource = custs.ToList();
+            this.gridAddresses.ItemsSource = addrs.ToList();
+            this.gridCustomersAddresses.ItemsSource = custAddrs.ToList();
         }
-
-        // Check the Customers' exist Address information
-        List<CustomerAddress> existAddress = null;
-        int selectedCustomerId = 0;
-        private void CheckingCustomerExistAddresses()
-        {
-            // Cut selectedColumn to list
-            string[] delimiterStrings = { ", ", "{ ", " }", " = " };
-
-            if (this.cmbxCustomerId.SelectedItem != null)
-            {
-                string i = this.cmbxCustomerId.SelectedItem.ToString();
-                List<string> list = new List<string>(i.Split(delimiterStrings, System.StringSplitOptions.None));
-
-                // Fill selected column into variable
-                this.selectedCustomerId = int.Parse(list[2].ToString());
-
-                var addrs = from ca in db.CustomerAddresses
-                            where ca.CustomerID == this.selectedCustomerId
-                            select ca;
-                if (addrs.Count() == 0)
-                {
-                    existAddress = null;
-                }
-                else
-                {
-                    existAddress = addrs.ToList();
-                }
-            }
-
-        }
-
 
     }
 }

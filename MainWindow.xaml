@@ -33,8 +33,6 @@
                FontWeight="DemiBold" FontSize="10"/>
         <Button x:Name="btnDeleteCustomers" Content="Delete" HorizontalAlignment="Left" Margin="440,187,0,77" Click="btnDeleteCustomers_Click" Width="66" FontFamily="Copperplate Gothic Bold" 
                FontWeight="DemiBold" FontSize="10"/>
-        <Button x:Name="btnSaveAddresses" Content="Save" HorizontalAlignment="Left" Margin="349,95,0,167" Click="btnSaveAddresses_Click" Width="50" Grid.Column="1" FontFamily="Copperplate Gothic Bold" 
-               FontWeight="DemiBold" FontSize="10"/>
         <Button x:Name="btnLoadCustomers" Content="Load Data" HorizontalAlignment="Left" Margin="440,121,0,141" Click="btnLoadCustomers_Click" Width="66" FontFamily="Copperplate Gothic Bold" 
                FontWeight="DemiBold" FontSize="10"/>
         <Button x:Name="btnUpdateCustomers" Content="Update" HorizontalAlignment="Left" Margin="440,154,0,108" Click="BtnUpdateCustomers_Click" Width="66" FontFamily="Copperplate Gothic Bold" 
@@ -66,33 +64,34 @@
         <!-- Address Information Input -->
         <Label Content="Address Information Input" Margin="27,56,263,195" Grid.Column="1" FontFamily="Copperplate Gothic Bold" 
                FontWeight="DemiBold" FontSize="10"/>
-        <Border BorderBrush="Black" BorderThickness="1" Margin="10,83,62,12" Grid.Column="1"/>
+        <Border BorderBrush="Black" BorderThickness="1" Margin="10,83,77,12" Grid.Column="1"/>
 
 
         <Label Content="Customer Id:" Margin="18,103,414,149" FontSize="7" Grid.Column="1"/>
-        <ComboBox Margin="81,103,0,149" Width="52" x:Name="cmbxCustomerId" HorizontalAlignment="Left" ComboBox.ItemContainerStyle="{StaticResource ComboboxItemStyle}" DisplayMemberPath="CustomerId" PreviewMouseLeftButtonDown="ComboBoxCustomerId_Click" DropDownClosed="ComboBoxCustomerId_DropDownClosed" Grid.Column="1"/>
+        <ComboBox Margin="87,103,0,149" Width="46" x:Name="cmbxCustomerId" HorizontalAlignment="Left" ComboBox.ItemContainerStyle="{StaticResource ComboboxItemStyle}" DisplayMemberPath="CustomerId" PreviewMouseLeftButtonDown="ComboBoxCustomerId_Click" DropDownClosed="ComboBoxCustomerId_DropDownClosed" Grid.Column="1"/>
         <Label Content="AddressType:" Margin="18,139,414,112" FontSize="7" Grid.Column="1"/>
-        <ComboBox Margin="81,138,0,114" Width="52" x:Name="cmbxAddressType" HorizontalAlignment="Left" ComboBox.ItemContainerStyle="{StaticResource ComboboxItemStyle}" PreviewMouseLeftButtonDown="ComboBoxAddressType_Click" DropDownClosed="ComboBoxAddressType_DropDownClosed" Grid.Column="1"/>
+        <ComboBox Margin="87,138,0,114" Width="46" x:Name="cmbxAddressType" HorizontalAlignment="Left" ComboBox.ItemContainerStyle="{StaticResource ComboboxItemStyle}" PreviewMouseLeftButtonDown="ComboBoxAddressType_Click" DropDownClosed="ComboBoxAddressType_DropDownClosed" Grid.Column="1"/>
 
-        <Label Content="Modified Date:" Margin="268,139,160,113" FontSize="7" Grid.Column="1"/>
+        <Label Content="Modified Date:" Margin="273,139,165,113" FontSize="7" Grid.Column="1"/>
         <TextBox x:Name="txtModifiedDate" HorizontalAlignment="Left" Margin="348,139,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
-        <Label Content="Address Line 1:" Margin="18,217,408,36" FontSize="7" Grid.Column="1"/>
-        <TextBox x:Name="txtAddressLine1" HorizontalAlignment="Left" Margin="96,216,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="123" Height="25" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
+        <Label Content="AddressLine1" Margin="18,217,414,36" FontSize="7" Grid.Column="1"/>
+        <TextBox x:Name="txtAddressLine1" HorizontalAlignment="Left" Margin="87,216,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="102" Height="25" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
 
-        <Label Content="Address Line 2:" Margin="226,218,204,37" FontSize="7" Grid.Column="1"/>
-        <TextBox x:Name="txtAddressLine2" HorizontalAlignment="Left" Margin="299,214,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="114" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
-        <Label Content="City:" Margin="153,140,301,112" FontSize="7" Grid.Column="1"/>
-        <TextBox x:Name="txtCity" HorizontalAlignment="Left" Margin="204,140,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
-        <Label Content="State:" Margin="18,183,438,72" FontSize="7" Grid.Column="1"/>
-        <TextBox x:Name="txtState" HorizontalAlignment="Left" Margin="81,181,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="52" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
-        <Label Content="Country:" Margin="153,179,294,75" FontSize="7" Grid.Column="1"/>
-        <TextBox x:Name="txtCountry" HorizontalAlignment="Left" Margin="204,178,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="52" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
-
+        <Label Content="AddressLine2:" Margin="204,218,229,37" FontSize="7" Grid.Column="1"/>
+        <TextBox x:Name="txtAddressLine2" HorizontalAlignment="Left" Margin="273,214,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="126" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
+        <Label Content="City:" Margin="147,140,301,112" FontSize="7" Grid.Column="1"/>
+        <TextBox x:Name="txtCity" HorizontalAlignment="Left" Margin="204,140,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="57" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
+        <Label Content="State:" Margin="18,183,414,72" FontSize="7" Grid.Column="1"/>
+        <TextBox x:Name="txtState" HorizontalAlignment="Left" Margin="87,181,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="46" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
+        <Label Content="Country:" Margin="147,179,301,75" FontSize="7" Grid.Column="1"/>
+        <TextBox x:Name="txtCountry" HorizontalAlignment="Left" Margin="204,178,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="57" Height="26" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
         <Label Content="Postal Code:" Margin="273,182,165,73" FontSize="7" Grid.Column="1"/>
         <TextBox x:Name="txtPostalCode" HorizontalAlignment="Left" Margin="348,179,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="51" Height="24" FontSize="8" RenderTransformOrigin="0.501,0.447" Grid.Column="1"/>
-
-
-
+        <!-- Buttons for Address Block -->
+        <Button x:Name="btnSaveAddresses" Content="Save" HorizontalAlignment="Left" Margin="424,87,0,175" Click="btnSaveAddress_Click" Width="50" Grid.Column="1" FontFamily="Copperplate Gothic Bold" 
+               FontWeight="DemiBold" FontSize="10"/>
+        <Button x:Name="btnClearAddress" Content="Clear" HorizontalAlignment="Left" Margin="424,121,0,143" Click="btnClearAddress_Click" Width="50" Grid.Column="1" FontFamily="Copperplate Gothic Bold" 
+               FontWeight="DemiBold" FontSize="10"/>
 
         <DataGrid x:Name="custGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" FontFamily="Comic Sans MS" FontWeight="Light" FontSize="7" 
                   Margin="0,466,91,23" RowDetailsVisibilityMode="VisibleWhenSelected" Grid.ColumnSpan="2" Grid.Row="2">

@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="CustomerModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="CustomerModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Address">
           <Key>
             <PropertyRef Name="AddressId" />
@@ -33,13 +33,10 @@
           <Property Name="Phone" Type="varchar" MaxLength="50" />
           <Property Name="Password" Type="varchar" MaxLength="100" Nullable="false" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'C:\USERS\USER\DOCUMENTS\VS PROJECTS\SELF STUDY\LAB4\CUSTOMER.MDF.dbo.CustomerAddress' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="CustomerAddress">
           <Key>
             <PropertyRef Name="CustomerID" />
             <PropertyRef Name="AddressID" />
-            <PropertyRef Name="AddressType" />
           </Key>
           <Property Name="CustomerID" Type="int" Nullable="false" />
           <Property Name="AddressID" Type="int" Nullable="false" />
@@ -85,15 +82,8 @@ warning 6002: The table/view 'C:\USERS\USER\DOCUMENTS\VS PROJECTS\SELF STUDY\LAB
         <EntityContainer Name="CustomerModelStoreContainer">
           <EntitySet Name="Address" EntityType="Self.Address" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Customer" EntityType="Self.Customer" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CustomerAddress" EntityType="Self.CustomerAddress" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserLogin" EntityType="Self.UserLogin" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="CustomerAddress" EntityType="Self.CustomerAddress" store:Type="Tables" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [CustomerAddress].[CustomerID] AS [CustomerID], 
-    [CustomerAddress].[AddressID] AS [AddressID], 
-    [CustomerAddress].[AddressType] AS [AddressType], 
-    [CustomerAddress].[ModifiedDate] AS [ModifiedDate]
-    FROM [dbo].[CustomerAddress] AS [CustomerAddress]</DefiningQuery>
-          </EntitySet>
           <AssociationSet Name="FK_CustomerAddress_Address" Association="Self.FK_CustomerAddress_Address">
             <End Role="Address" EntitySet="Address" />
             <End Role="CustomerAddress" EntitySet="CustomerAddress" />
@@ -103,8 +93,7 @@ warning 6002: The table/view 'C:\USERS\USER\DOCUMENTS\VS PROJECTS\SELF STUDY\LAB
             <End Role="CustomerAddress" EntitySet="CustomerAddress" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="CustomerModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -154,7 +143,6 @@ warning 6002: The table/view 'C:\USERS\USER\DOCUMENTS\VS PROJECTS\SELF STUDY\LAB
           <Key>
             <PropertyRef Name="CustomerID" />
             <PropertyRef Name="AddressID" />
-            <PropertyRef Name="AddressType" />
           </Key>
           <Property Name="CustomerID" Type="Int32" Nullable="false" />
           <Property Name="AddressID" Type="Int32" Nullable="false" />

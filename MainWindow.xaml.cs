@@ -54,6 +54,7 @@ namespace Lab4
 
         private void btnLoadCustomers_Click(object sender, RoutedEventArgs e)
         {
+            this.cmbxCustomerId_Search.SelectedItem = null;
             ReloadingCustomers();
         }
 
@@ -113,9 +114,18 @@ namespace Lab4
 
         }
 
-
+        private int deletingCustomerId = 0;
+        private List<int> deletingAddressIds = null;
         private void btnDeleteCustomers_Click(object sender, RoutedEventArgs e)
         {
+            if (this.gridCustomers.SelectedItem == null)
+            {
+                MessageBox.Show("Plz select a line of customer information in Basic Information Area first!");
+            }
+
+            deletingCustomerId = this.updatingCustomerId;
+            deletingAddressIds = GettingAddressId(this.deletingCustomerId);
+
             MessageBoxResult msgConfirm = MessageBox.Show(
                                                             "Do you want to delete this record?",
                                                             "Deleting Customer Records",
@@ -124,21 +134,65 @@ namespace Lab4
                                                             MessageBoxResult.No);
             if (msgConfirm == MessageBoxResult.Yes)
             {
-                var cust = from c in db.Customers
-                           where c.CustomerID == this.updatingCustomerId
-                           select c;
-                Customer custObject = cust.SingleOrDefault();
-                if (custObject != null)
+                // 1, Deleting relevant records from CustomerAddress table, then Address table
+                if(deletingAddressIds == null)
                 {
-                    db.Customers.Remove(custObject);
-                    db.SaveChanges();
-                    ReloadingCustomers();
+                    MessageBox.Show($"There are no address records can be deleting!");
+                }
+                else
+                {
+                    // CustomerAddress
+                    foreach (int d in deletingAddressIds)
+                    {
+                        var custAddrs = from ca in db.CustomerAddresses
+                                        where ca.CustomerID == this.deletingCustomerId && ca.AddressID == d
+                                        select ca;
+                        CustomerAddress caObject = custAddrs.SingleOrDefault();
+                        if (caObject != null)
+                        {
+                            db.CustomerAddresses.Remove(caObject);
+                            db.SaveChanges();
+                        }
+                    }
+                    // Address
+                    foreach (int d in deletingAddressIds)
+                    {
+                        var addrs = from a in db.Addresses
+                                    where a.AddressId == d
+                                    select a;
+                        Address addrObject = addrs.SingleOrDefault();
+                        if (addrObject != null)
+                        {
+                            db.Addresses.Remove(addrObject);
+                            db.SaveChanges();
+                        }
+                    }
+                }
+
+                // 2, Deleting relevant records from Customer table
+                if (deletingCustomerId == 0)
+                {
+                    MessageBox.Show($"There are no customer record can be deleting!");
+                }
+                else
+                {
+                    var cust = from c in db.Customers
+                               where c.CustomerID == this.updatingCustomerId
+                               select c;
+                    Customer custObject = cust.SingleOrDefault();
+                    if (custObject != null)
+                    {
+                        db.Customers.Remove(custObject);
+                        db.SaveChanges();
+                        ReloadingCustomers();
+                        MessageBox.Show($"Customer ID: " + this.deletingCustomerId + "'s record has been deleted!");
+                    }
                 }
             }
 
         }
 
-        /* Address Part */
+        /************************************** Address Part ********************************************/
 
         // Clicking the CustomerId comboBox
         private void ComboBoxCustomerId_Click(object sender, MouseButtonEventArgs e)
@@ -237,7 +291,7 @@ namespace Lab4
 
 
         // Check the Customers' exist Address information
-        List<CustomerAddress> existAddress = null;
+        List<CustomerAddress> existAddress = new List<CustomerAddress>();
         int selectedCustomerId = 0;
         private void CheckingCustomerExistAddresses()
         {
@@ -306,6 +360,58 @@ namespace Lab4
             this.cmbxAddressType.SelectedItem = null;
             ClearAddressTextBox();
         }
+
+        private void btnDeleteAddress_Click(object sender, RoutedEventArgs e)
+        {
+            if(this.cmbxCustomerId.SelectedItem != null && this.cmbxAddressType.SelectedItem != null)
+            {
+                DeletingAddressInformation(this.selectedCustomerId, this.selectAddrType);
+            }
+            else
+            {
+                MessageBox.Show("Plz select Customer Id and Address Type first before deleting address information!");
+            }
+
+        }
+
+        /**************************************** Reports Block ***********************************/
+        private void ComboBoxCustomerIdSearch_Click(object sender, MouseButtonEventArgs e)
+        {
+            var custs = from c in db.Customers
+                        select new
+                        {
+                            CustomerId = c.CustomerID,
+                        };
+
+            cmbxCustomerId_Search.ItemsSource = custs.ToList();
+        }
+
+        private int searchingCustId = 0;
+        private void ComboBoxCustomerIdSearch_DropDownClosed(object sender, EventArgs e)
+        {
+            if (cmbxCustomerId_Search.SelectedItem != null)
+            {
+                searchingCustId = FormatId(this.cmbxCustomerId_Search.SelectedItem.ToString());
+                QueryAll(searchingCustId);
+            }
+        }
+
+        private void btnSortFName_Click(object sender, RoutedEventArgs e)
+        {
+            SortAllByFirstName();
+        }
+
+        private void btnSortCompany_Click(object sender, RoutedEventArgs e)
+        {
+            SortAllByCompanyName();
+        }
+
+        private void btnSFilterCA_Click(object sender, RoutedEventArgs e)
+        {
+            AllFromCanada();
+        }
+
+        /**************************************** Methods **************************************/
 
         // Clear textBoxes of Address Block
         private void ClearAddressTextBox()
@@ -401,6 +507,7 @@ namespace Lab4
             return int.Parse(list[2].ToString());
         }
 
+
         // Reloading Customers Method
         private void ReloadingCustomers()
         {
@@ -474,5 +581,202 @@ namespace Lab4
             this.gridCustomersAddresses.ItemsSource = custAddrs.ToList();
         }
 
+        // Getting relavant address id by using customer id
+        private List<int> GettingAddressId(int custId)
+        {
+            var custAddrs = from ca in db.CustomerAddresses
+                            where ca.CustomerID == custId
+                            select ca;
+            List<CustomerAddress> l = new List<CustomerAddress>();
+            List<int> intList = new List<int>();
+            l = custAddrs.ToList();
+
+            foreach(CustomerAddress c in l)
+            {
+                intList.Add(c.AddressID);
+            }
+            return intList;
+        }
+
+        // Deleting the Customers' existing Address information depends on CustomerId and AddressType
+        private void DeletingAddressInformation(int custId, string addrType)
+        {
+            int addrId = 0;
+            // 1, Deleting relevant records from CustomerAddress table
+            var custAddrs = from ca in db.CustomerAddresses
+                            where ca.CustomerID == custId && ca.AddressType == addrType
+                            select ca;
+            CustomerAddress caObject = custAddrs.SingleOrDefault();
+            if (caObject != null)
+            {
+                addrId = caObject.AddressID;
+                db.CustomerAddresses.Remove(caObject);
+                db.SaveChanges();
+            }
+
+            // 2, Deleting relevant records from Address table
+            if (addrId == 0)
+            {
+                MessageBox.Show($"There is no " + addrType + " address record exist in Databse about Customer ID: " + custId + " !");
+            }
+            else
+            {
+                var addr = from a in db.Addresses
+                           where a.AddressId == addrId
+                           select a;
+                Address addrObject = addr.SingleOrDefault();
+                if (addrObject != null)
+                {
+                    db.Addresses.Remove(addrObject);
+                    db.SaveChanges();
+                    ReloadingCustomers();
+                    MessageBox.Show($"Customer ID: " + custId + "'s " + addrType + " address information has been deleted!");
+                }
+            }
+        }
+
+
+        // Searching all information about a giving customer ID
+        private void QueryAll(int custId)
+        {
+            var custInfors = (from c in db.Customers
+                              from a in db.Addresses
+                              from ca in db.CustomerAddresses
+                              where c.CustomerID.Equals(ca.CustomerID) && a.AddressId.Equals(ca.AddressID) && c.CustomerID == custId
+                              select new
+                              {
+                                  c.CustomerID,
+                                  c.NameStyle,
+                                  c.Title,
+                                  c.FirstName,
+                                  c.MiddleName,
+                                  c.LastName,
+                                  c.CompanyName,
+                                  c.SalesPerson,
+                                  c.EmailAddress,
+                                  c.Phone,
+                                  c.Password,
+                                  ca.AddressType,
+                                  ca.ModifiedDate,
+                                  a.AddressId,
+                                  a.AddressLine1,
+                                  a.AddressLine2,
+                                  a.City,
+                                  a.StateProvince,
+                                  a.CountryRegion,
+                                  a.PostalCode
+                              }).Distinct();
+
+            // Assign items source for gridCustomers
+            this.custGrid.ItemsSource = custInfors.ToList();
+        }
+
+        // Sorting all information by Customer's First Name
+        private void SortAllByFirstName()
+        {
+            var custInfors = (from c in db.Customers
+                              from a in db.Addresses
+                              from ca in db.CustomerAddresses
+                              where c.CustomerID.Equals(ca.CustomerID) && a.AddressId.Equals(ca.AddressID)
+                              orderby c.FirstName ascending
+                              select new
+                              {
+                                  c.CustomerID,
+                                  c.NameStyle,
+                                  c.Title,
+                                  c.FirstName,
+                                  c.MiddleName,
+                                  c.LastName,
+                                  c.CompanyName,
+                                  c.SalesPerson,
+                                  c.EmailAddress,
+                                  c.Phone,
+                                  c.Password,
+                                  ca.AddressType,
+                                  ca.ModifiedDate,
+                                  a.AddressId,
+                                  a.AddressLine1,
+                                  a.AddressLine2,
+                                  a.City,
+                                  a.StateProvince,
+                                  a.CountryRegion,
+                                  a.PostalCode
+                              });
+
+            // Assign items source for gridCustomers
+            this.custGrid.ItemsSource = custInfors.ToList();
+        }
+
+
+        // Sorting all information by Company Name
+        private void SortAllByCompanyName()
+        {
+            var custInfors = (from c in db.Customers
+                              from a in db.Addresses
+                              from ca in db.CustomerAddresses
+                              where c.CustomerID.Equals(ca.CustomerID) && a.AddressId.Equals(ca.AddressID)
+                              orderby c.CompanyName ascending
+                              select new
+                              {
+                                  c.CustomerID,
+                                  c.NameStyle,
+                                  c.Title,
+                                  c.FirstName,
+                                  c.MiddleName,
+                                  c.LastName,
+                                  c.CompanyName,
+                                  c.SalesPerson,
+                                  c.EmailAddress,
+                                  c.Phone,
+                                  c.Password,
+                                  ca.AddressType,
+                                  ca.ModifiedDate,
+                                  a.AddressId,
+                                  a.AddressLine1,
+                                  a.AddressLine2,
+                                  a.City,
+                                  a.StateProvince,
+                                  a.CountryRegion,
+                                  a.PostalCode
+                              });
+
+            // Assign items source for gridCustomers
+            this.custGrid.ItemsSource = custInfors.ToList();
+        }
+
+        // Filter all customers' information from Canada
+        private void AllFromCanada()
+        {
+            var custInfors = (from c in db.Customers
+                              from a in db.Addresses
+                              from ca in db.CustomerAddresses
+                              where c.CustomerID.Equals(ca.CustomerID) && a.AddressId.Equals(ca.AddressID) && a.CountryRegion.Equals("Canada")
+                              select new
+                              {
+                                  c.CustomerID,
+                                  c.NameStyle,
+                                  c.Title,
+                                  c.FirstName,
+                                  c.MiddleName,
+                                  c.LastName,
+                                  c.CompanyName,
+                                  c.SalesPerson,
+                                  c.EmailAddress,
+                                  c.Phone,
+                                  c.Password,
+                                  ca.AddressType,
+                                  ca.ModifiedDate,
+                                  a.AddressId,
+                                  a.AddressLine1,
+                                  a.AddressLine2,
+                                  a.City,
+                                  a.StateProvince,
+                                  a.CountryRegion,
+                                  a.PostalCode
+                              });
+
+            // Assign items source for gridCustomers
+            this.custGrid.ItemsSource = custInfors.ToList();
+        }
     }
 }
